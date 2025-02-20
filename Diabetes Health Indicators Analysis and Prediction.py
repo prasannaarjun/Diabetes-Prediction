@@ -13,6 +13,9 @@ from xgboost import XGBClassifier
 #making sure models folder exists
 if not os.path.exists('models'):
     os.makedirs('models')
+#making sure datasets folder exists
+if not os.path.exists('datasets'):
+    os.makedirs('datasets')
 
 #Load the datasets
 df_012 = pd.read_csv('datasets/diabetes_012_health_indicators_BRFSS2015.csv')
