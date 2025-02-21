@@ -11,16 +11,16 @@ from sklearn.model_selection import train_test_split
 from xgboost import XGBClassifier
 
 #making sure models folder exists
-if not os.path.exists('models'):
-    os.makedirs('models')
+if not os.path.exists('../models'):
+    os.makedirs('../models')
 #making sure datasets folder exists
-if not os.path.exists('datasets'):
-    os.makedirs('datasets')
+if not os.path.exists('../datasets'):
+    os.makedirs('../datasets')
 
 #Load the datasets
-df_012 = pd.read_csv('datasets/diabetes_012_health_indicators_BRFSS2015.csv')
-df_binary = pd.read_csv('datasets/diabetes_binary_5050split_health_indicators_BRFSS2015.csv')
-df_5050 = pd.read_csv('datasets/diabetes_binary_health_indicators_BRFSS2015.csv')
+df_012 = pd.read_csv('../datasets/diabetes_012_health_indicators_BRFSS2015.csv')
+df_binary = pd.read_csv('../datasets/diabetes_binary_5050split_health_indicators_BRFSS2015.csv')
+df_5050 = pd.read_csv('../datasets/diabetes_binary_health_indicators_BRFSS2015.csv')
 
 # Display the first few rows of each dataset
 df_012.head(),df_012.info(), df_binary.head(),df_012.describe()
@@ -64,7 +64,7 @@ model_rf.fit(X_train, y_train)
 
 
 #saving the rf model as pickle file
-with open('models/random_forest.pkl', 'wb') as f:
+with open('../models/random_forest.pkl', 'wb') as f:
   pickle.dump(model_rf, f)
   print('RF Model saved')
 
@@ -88,7 +88,7 @@ model_XGB = XGBClassifier()
 model_XGB.fit(X_train, y_train)
 
 #save the XGB model as a pickle file
-with open('models/xgb_classifier.pkl', 'wb') as f:
+with open('../models/xgb_classifier.pkl', 'wb') as f:
   pickle.dump(model_XGB, f)
   print('XGB Model saved')
 

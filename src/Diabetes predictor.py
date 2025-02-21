@@ -4,33 +4,52 @@ import tkinter as tk
 from tkinter import messagebox
 
 # Load trained models
-with open('models/random_forest.pkl', 'rb') as f:
+with open('../models/random_forest.pkl', 'rb') as f:
     model_rf = pickle.load(f)
 
-with open('models/xgb_classifier.pkl', 'rb') as f:
+with open('../models/xgb_classifier.pkl', 'rb') as f:
     model_xgb = pickle.load(f)
 
 # Define the prediction function
+valid_ranges = {
+    "HighBP": [0, 1],
+    "HighChol": [0, 1],
+    "Stroke": [0, 1],
+    "HeartDiseaseorAttack": [0, 1],
+    "PhysActivity": [0, 1],
+    "HvyAlcoholConsump": [0, 1],
+    "AnyHealthcare": [0, 1],
+    "DiffWalk": [0, 1],
+    "Sex": [0, 1],
+    "GenHlth": [1, 5],
+    "PhysHlth": [0, 30],
+    "Age": [1, 13],
+    "Education": [1, 6],
+    "Income": [1, 8]
+}
+
+
+# Define the prediction function with validation
 def predict_diabetes():
     try:
-        # Gather input from entry fields
-        feature_dict = {
-            'HighBP': int(entry_highbp.get()),
-            'HighChol': int(entry_highchol.get()),
-            'BMI': float(entry_bmi.get()),
-            'Stroke': int(entry_stroke.get()),
-            'HeartDiseaseorAttack': int(entry_heart.get()),
-            'PhysActivity': int(entry_physact.get()),
-            'HvyAlcoholConsump': int(entry_alcohol.get()),
-            'AnyHealthcare': int(entry_healthcare.get()),
-            'GenHlth': int(entry_genhealth.get()),
-            'PhysHlth': int(entry_physhealth.get()),
-            'DiffWalk': int(entry_diffwalk.get()),
-            'Sex': int(entry_sex.get()),
-            'Age': int(entry_age.get()),
-            'Education': int(entry_education.get()),
-            'Income': int(entry_income.get())
-        }
+        feature_dict = {}
+
+        for var_name, entry_widget in entries.items():
+            value = entry_widget.get()
+
+            # Validate numerical values
+            if var_name == "BMI":
+                value = float(value)
+                if value <= 0:
+                    raise ValueError(f"{var_name} must be a positive number.")
+            else:
+                value = int(value)
+                if var_name in valid_ranges and value not in range(valid_ranges[var_name][0],
+                                                                   valid_ranges[var_name][1] + 1):
+                    raise ValueError(
+                        f"{var_name} must be in range {valid_ranges[var_name][0]} to {valid_ranges[var_name][1]}.")
+
+            feature_dict[var_name] = value
 
         # Convert dictionary to DataFrame
         features_df = pd.DataFrame([feature_dict])
@@ -66,8 +85,9 @@ def predict_diabetes():
         # Show result
         messagebox.showinfo("Prediction Result", f"The prediction is: {result}\n\n{suggestions}")
 
-    except ValueError:
-        messagebox.showerror("Input Error", "Please enter valid input values.")
+    except ValueError as e:
+        messagebox.showerror("Input Error", str(e))
+
 
 # Create Tkinter window
 root = tk.Tk()
@@ -76,21 +96,21 @@ root.geometry("450x650")
 
 # Create labels and entry fields
 features = [
-    ("HighBP (0 or 1)", "highbp"),
-    ("HighChol (0 or 1)", "highchol"),
-    ("BMI", "bmi"),
-    ("Stroke (0 or 1)", "stroke"),
-    ("HeartDiseaseorAttack (0 or 1)", "heart"),
-    ("PhysActivity (0 or 1)", "physact"),
-    ("HvyAlcoholConsump (0 or 1)", "alcohol"),
-    ("AnyHealthcare (0 or 1)", "healthcare"),
-    ("GenHlth (1-5)", "genhealth"),
-    ("PhysHlth (0-30)", "physhealth"),
-    ("DiffWalk (0 or 1)", "diffwalk"),
-    ("Sex (0 for Female, 1 for Male)", "sex"),
-    ("Age (1-13)", "age"),
-    ("Education (1-6)", "education"),
-    ("Income (1-8)", "income")
+    ("HighBP (0 or 1)", "HighBP"),
+    ("HighChol (0 or 1)", "HighChol"),
+    ("BMI (Positive Value)", "BMI"),
+    ("Stroke (0 or 1)", "Stroke"),
+    ("HeartDiseaseorAttack (0 or 1)", "HeartDiseaseorAttack"),
+    ("PhysActivity (0 or 1)", "PhysActivity"),
+    ("HvyAlcoholConsump (0 or 1)", "HvyAlcoholConsump"),
+    ("AnyHealthcare (0 or 1)", "AnyHealthcare"),
+    ("GenHlth (1-5)", "GenHlth"),
+    ("PhysHlth (0-30)", "PhysHlth"),
+    ("DiffWalk (0 or 1)", "DiffWalk"),
+    ("Sex (0 for Female, 1 for Male)", "Sex"),
+    ("Age (1-13)", "Age"),
+    ("Education (1-6)", "Education"),
+    ("Income (1-8)", "Income")
 ]
 
 # Dictionary for entry widgets
@@ -103,23 +123,6 @@ for i, (label_text, var_name) in enumerate(features):
     entry = tk.Entry(root)
     entry.grid(row=i, column=1, padx=10, pady=5)
     entries[var_name] = entry
-
-# Assign entries to variables
-entry_highbp = entries["highbp"]
-entry_highchol = entries["highchol"]
-entry_bmi = entries["bmi"]
-entry_stroke = entries["stroke"]
-entry_heart = entries["heart"]
-entry_physact = entries["physact"]
-entry_alcohol = entries["alcohol"]
-entry_healthcare = entries["healthcare"]
-entry_genhealth = entries["genhealth"]
-entry_physhealth = entries["physhealth"]
-entry_diffwalk = entries["diffwalk"]
-entry_sex = entries["sex"]
-entry_age = entries["age"]
-entry_education = entries["education"]
-entry_income = entries["income"]
 
 # Model selection dropdown
 model_var = tk.StringVar(root)

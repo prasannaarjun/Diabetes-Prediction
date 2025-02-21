@@ -8,7 +8,7 @@ from warnings import filterwarnings
 filterwarnings('ignore')
 
 
-data = pd.read_csv('datasets/diabetes_binary_5050split_health_indicators_BRFSS2015.csv')
+data = pd.read_csv('../datasets/diabetes_binary_5050split_health_indicators_BRFSS2015.csv')
 data.columns
 
 
