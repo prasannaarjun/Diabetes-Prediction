@@ -10,7 +10,7 @@ with open('../models/random_forest.pkl', 'rb') as f:
 with open('../models/xgb_classifier.pkl', 'rb') as f:
     model_xgb = pickle.load(f)
 
-# Define the prediction function
+# Define valid ranges for input values
 valid_ranges = {
     "HighBP": [0, 1],
     "HighChol": [0, 1],
@@ -28,31 +28,42 @@ valid_ranges = {
     "Income": [1, 8]
 }
 
+# Define expected feature order
+expected_features = [
+    "HighBP", "HighChol", "BMI", "Stroke", "HeartDiseaseorAttack", "PhysActivity",
+    "HvyAlcoholConsump", "AnyHealthcare", "GenHlth", "PhysHlth", "DiffWalk", "Sex", "Age", "Education", "Income"
+]
+
 
 # Define the prediction function with validation
 def predict_diabetes():
     try:
         feature_dict = {}
 
+        # Get height and weight, then calculate BMI
+        height = float(entry_height.get())
+        weight = float(entry_weight.get())
+
+        if height <= 0 or weight <= 0:
+            raise ValueError("Height and Weight must be positive values.")
+
+        bmi = weight / (height ** 2)
+        feature_dict["BMI"] = bmi  # Add calculated BMI to the features
+
         for var_name, entry_widget in entries.items():
             value = entry_widget.get()
 
-            # Validate numerical values
-            if var_name == "BMI":
-                value = float(value)
-                if value <= 0:
-                    raise ValueError(f"{var_name} must be a positive number.")
-            else:
-                value = int(value)
-                if var_name in valid_ranges and value not in range(valid_ranges[var_name][0],
-                                                                   valid_ranges[var_name][1] + 1):
-                    raise ValueError(
-                        f"{var_name} must be in range {valid_ranges[var_name][0]} to {valid_ranges[var_name][1]}.")
+            value = int(value)  # Convert input to integer
+            if var_name in valid_ranges and value not in range(valid_ranges[var_name][0],
+                                                               valid_ranges[var_name][1] + 1):
+                raise ValueError(
+                    f"{var_name} must be in range {valid_ranges[var_name][0]} to {valid_ranges[var_name][1]}.")
 
             feature_dict[var_name] = value
 
-        # Convert dictionary to DataFrame
-        features_df = pd.DataFrame([feature_dict])
+        # Convert dictionary to DataFrame and ensure correct column order
+        features_df = pd.DataFrame([[feature_dict[feature] for feature in expected_features]],
+                                   columns=expected_features)
 
         # Select model
         selected_model = model_var.get()
@@ -92,13 +103,12 @@ def predict_diabetes():
 # Create Tkinter window
 root = tk.Tk()
 root.title("Diabetes Prediction")
-root.geometry("450x650")
+root.geometry("450x700")
 
-# Create labels and entry fields
+# Labels and entry fields
 features = [
     ("HighBP (0 or 1)", "HighBP"),
     ("HighChol (0 or 1)", "HighChol"),
-    ("BMI (Positive Value)", "BMI"),
     ("Stroke (0 or 1)", "Stroke"),
     ("HeartDiseaseorAttack (0 or 1)", "HeartDiseaseorAttack"),
     ("PhysActivity (0 or 1)", "PhysActivity"),
@@ -116,12 +126,23 @@ features = [
 # Dictionary for entry widgets
 entries = {}
 
+# Height and Weight inputs
+label_height = tk.Label(root, text="Height (meters)")
+label_height.grid(row=0, column=0, padx=10, pady=5, sticky="w")
+entry_height = tk.Entry(root)
+entry_height.grid(row=0, column=1, padx=10, pady=5)
+
+label_weight = tk.Label(root, text="Weight (kg)")
+label_weight.grid(row=1, column=0, padx=10, pady=5, sticky="w")
+entry_weight = tk.Entry(root)
+entry_weight.grid(row=1, column=1, padx=10, pady=5)
+
 # Create entry fields dynamically
 for i, (label_text, var_name) in enumerate(features):
     label = tk.Label(root, text=label_text)
-    label.grid(row=i, column=0, padx=10, pady=5, sticky="w")
+    label.grid(row=i + 2, column=0, padx=10, pady=5, sticky="w")
     entry = tk.Entry(root)
-    entry.grid(row=i, column=1, padx=10, pady=5)
+    entry.grid(row=i + 2, column=1, padx=10, pady=5)
     entries[var_name] = entry
 
 # Model selection dropdown
@@ -129,14 +150,14 @@ model_var = tk.StringVar(root)
 model_var.set("Random Forest")  # Default selection
 
 model_label = tk.Label(root, text="Select Model:")
-model_label.grid(row=len(features), column=0, padx=10, pady=5, sticky="w")
+model_label.grid(row=len(features) + 2, column=0, padx=10, pady=5, sticky="w")
 
 model_dropdown = tk.OptionMenu(root, model_var, "Random Forest", "XGBoost")
-model_dropdown.grid(row=len(features), column=1, padx=10, pady=5)
+model_dropdown.grid(row=len(features) + 2, column=1, padx=10, pady=5)
 
 # Prediction button
 predict_button = tk.Button(root, text="Predict", command=predict_diabetes)
-predict_button.grid(row=len(features) + 1, column=0, columnspan=2, pady=20)
+predict_button.grid(row=len(features) + 3, column=0, columnspan=2, pady=20)
 
 # Run Tkinter main loop
 root.mainloop()
