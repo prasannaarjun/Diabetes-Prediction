@@ -8,7 +8,7 @@ from sklearn.metrics import accuracy_score, confusion_matrix, classification_rep
 from sklearn.model_selection import train_test_split
 
 #Load the dataset
-df_012 = pd.read_csv('datasets/diabetes_012_health_indicators_BRFSS2015.csv')
+df_012 = pd.read_csv('../datasets/diabetes_012_health_indicators_BRFSS2015.csv')
 
 # Display the first few rows of dataset
 df_012.head()
