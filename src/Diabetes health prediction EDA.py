@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 
@@ -9,7 +8,7 @@ filterwarnings('ignore')
 
 
 data = pd.read_csv('../datasets/diabetes_binary_5050split_health_indicators_BRFSS2015.csv')
-data.columns
+#data.columns
 
 
 data.info()
@@ -37,7 +36,7 @@ data['Diabetes_binary']=data['Diabetes_binary'].astype('int64')
 data['HighBP']=data['HighBP'].astype('int64')
 data['HighChol']=data['HighChol'].astype('int64')
 
-data.describe().T
+#data.describe().T
 
 data = data.rename(columns={'Diabetes_binary': 'Diabetes'})
 
