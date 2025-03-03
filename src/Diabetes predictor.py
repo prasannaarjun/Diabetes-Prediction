@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 import pickle
 import pandas as pd
-import numpy as np
+
 
 # Load models
 models = {
@@ -90,8 +90,8 @@ GenHlth, Education, model_var = (tk.StringVar(value=v) for v in ["Excellent", "N
 
 # UI Elements
 fields = ["Age", "Income", "Height (cm)", "Weight (kg)", "Days with poor physical health"]
-vars = [Age, Income, Height, Weight, PhysHlth]
-for i, (label, var) in enumerate(zip(fields, vars)):
+inp_vars = [Age, Income, Height, Weight, PhysHlth]
+for i, (label, var) in enumerate(zip(fields, inp_vars)):
     tk.Label(root, text=label+":").grid(row=i, column=0, sticky='w')
     tk.Entry(root, textvariable=var).grid(row=i, column=1)
 
