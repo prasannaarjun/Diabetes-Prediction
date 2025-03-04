@@ -90,10 +90,10 @@ plt.title("Confusion Matrix - Random Forest")
 plt.show()
 
 # Save the trained model using pickle
-models_dir = "models"
+models_dir = "../models"
 os.makedirs(models_dir, exist_ok=True)  # Create 'models' directory if it doesn't exist
 
-model_path = os.path.join(models_dir, r"../models/random_forest_prediabetes.pkl")
+model_path = os.path.join(models_dir, "../models/random_forest_prediabetes.pkl")
 with open(model_path, "wb") as model_file:
     pickle.dump(model_rf, model_file)
 
