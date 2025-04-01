@@ -51,11 +51,12 @@ data1 = pd.read_csv('../datasets/resampled_dataset.csv')
 
 # Drop unnecessary columns
 data_modeling = data1.drop(columns=['CholCheck', 'Fruits', 'Veggies', 'NoDocbcCost', 'MentHlth', 'CholCheck', 'Smoker'])
-print(data1.head())
+print(data_modeling.head())
+
 
 # Prepare features and target variable
-X = data1.drop('Diabetes_012', axis=1)
-y = data1['Diabetes_012']
+X = data_modeling.drop('Diabetes_012', axis=1)
+y = data_modeling['Diabetes_012']
 
 # Split the data into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)

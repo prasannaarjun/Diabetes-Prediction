@@ -2,13 +2,15 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 import pickle
 import pandas as pd
+import os
 
-
-# Load models
-models = {
-    "Random Forest": pickle.load(open("../models/random_forest.pkl", "rb")),
-    "XGBoost": pickle.load(open("../models/xgb_classifier.pkl", "rb"))
-}
+# Load the default model
+model_path = "../models/random_forest.pkl"
+if os.path.exists(model_path):
+    with open(model_path, "rb") as f:
+        model = pickle.load(f)
+else:
+    messagebox.showerror("Error", f"Model file {model_path} not found.")
 
 # Define mappings
 education_mapping = {
@@ -22,7 +24,6 @@ education_mapping = {
 
 gen_hlth_mapping = {"Excellent": 1, "Very Good": 2, "Good": 3, "Fair": 4, "Poor": 5}
 
-# Helper functions
 def safe_int(value, field_name):
     try:
         return int(value)
@@ -37,7 +38,6 @@ def safe_float(value, field_name):
 
 def predict():
     try:
-        # Validate inputs
         age = safe_int(Age.get(), "Age")
         income = safe_int(Income.get(), "Income")
         education = education_mapping.get(Education.get(), 3)
@@ -61,15 +61,14 @@ def predict():
         ]
         inputs_df = pd.DataFrame([inputs], columns=feature_names)
 
-        # Predict using selected model
-        selected_model = model_var.get()
-        prediction = models[selected_model].predict(inputs_df)[0]
+        prediction = model.predict(inputs_df)[0]
 
-        # Display result
         result, suggestions = (
             ("Diabetic", "To manage diabetes:\n- Eat a balanced, low-sugar diet.\n- Exercise regularly.\n- Monitor blood sugar levels.\n- Avoid smoking and limit alcohol.")
+            if prediction == 2 else
+            ("Pre-Diabetic", "To prevent diabetes:\n- Maintain a healthy diet with fiber-rich foods.\n- Exercise regularly to maintain a healthy weight.\n- Monitor blood sugar levels.\n- Reduce stress and get regular checkups.")
             if prediction == 1 else
-            ("Non-Diabetic", "To maintain a healthy lifestyle:\n- Continue a balanced diet.\n- Engage in regular exercise.\n- Maintain a healthy weight.\n- Avoid smoking and excessive alcohol.")
+            ("Healthy", "To maintain good health:\n- Continue a balanced diet.\n- Engage in regular physical activity.\n- Maintain a healthy weight.\n- Avoid smoking and excessive alcohol.")
         )
 
         messagebox.showinfo("Prediction Result", f"The prediction is: {result}\n\n{suggestions}")
@@ -78,18 +77,15 @@ def predict():
     except Exception as e:
         messagebox.showerror("Error", f"An unexpected error occurred: {str(e)}")
 
-# UI Setup
 root = tk.Tk()
 root.title("Diabetes Prediction")
 
-# Variables
 Age, Income, Height, Weight, PhysHlth = (tk.StringVar() for _ in range(5))
 HighBP, HighChol, Stroke, HeartDiseaseorAttack, PhysActivity = (tk.IntVar(value=0) for _ in range(5))
 HvyAlcoholConsump, AnyHealthcare, DiffWalk, Sex = (tk.IntVar(value=0) for _ in range(4))
-GenHlth, Education, model_var = (tk.StringVar(value=v) for v in ["Excellent", "Never attended school or only kindergarten", "Random Forest"])
+GenHlth, Education = (tk.StringVar(value=v) for v in ["Excellent", "Never attended school or only kindergarten"])
 
-# UI Elements
-fields = ["Age", "Income", "Height (cm)", "Weight (kg)", "Days with poor physical health"]
+fields = ["Age", "Income(USD $)", "Height (cm)", "Weight (kg)", "Days with poor physical health in last 30 days"]
 inp_vars = [Age, Income, Height, Weight, PhysHlth]
 for i, (label, var) in enumerate(zip(fields, inp_vars)):
     tk.Label(root, text=label+":").grid(row=i, column=0, sticky='w')
@@ -117,10 +113,6 @@ for i, (text, var) in enumerate(questions, start=6):
 tk.Label(root, text="Education Level:").grid(row=14, column=0, sticky='w')
 ttk.Combobox(root, textvariable=Education, values=list(education_mapping.keys())).grid(row=14, column=1)
 
-tk.Label(root, text="Select Model:").grid(row=15, column=0, sticky='w')
-ttk.Combobox(root, textvariable=model_var, values=list(models.keys())).grid(row=15, column=1)
-
-# Predict Button
-tk.Button(root, text="Predict", command=predict).grid(row=16, column=0, columnspan=2)
+tk.Button(root, text="Predict", command=predict).grid(row=15, column=0, columnspan=2)
 
 root.mainloop()
